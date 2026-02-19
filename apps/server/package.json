@@ -1,0 +1,29 @@
+{
+  "name": "@who-is-killer/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "lint": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@who-is-killer/shared": "workspace:*",
+    "@fastify/cors": "^11",
+    "@fastify/websocket": "^11",
+    "dotenv": "^16",
+    "fastify": "^5",
+    "nanoid": "^5",
+    "openai": "^4",
+    "zod": "^3"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "@types/ws": "^8",
+    "tsx": "^4",
+    "typescript": "^5"
+  }
+}

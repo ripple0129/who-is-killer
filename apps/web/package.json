@@ -1,0 +1,32 @@
+{
+  "name": "@who-is-killer/web",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "next dev -p 3600",
+    "build": "next build",
+    "start": "next start -p 3600",
+    "lint": "next lint",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@who-is-killer/shared": "workspace:*",
+    "clsx": "^2",
+    "lucide-react": "^0.564.0",
+    "next": "^15",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwind-merge": "^3",
+    "zustand": "^5"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^22",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "postcss": "^8",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
