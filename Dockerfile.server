@@ -1,0 +1,15 @@
+FROM node:20-alpine AS base
+RUN corepack enable
+
+WORKDIR /app
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml turbo.json ./
+COPY apps/server/package.json apps/server/
+COPY packages/shared/package.json packages/shared/
+RUN pnpm install --frozen-lockfile
+
+COPY apps/server/ apps/server/
+COPY packages/shared/ packages/shared/
+
+ENV NODE_ENV=production
+EXPOSE 3001
+CMD ["npx", "tsx", "apps/server/src/index.ts"]

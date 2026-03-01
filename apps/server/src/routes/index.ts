@@ -8,6 +8,7 @@ const ARINOVA_CLIENT_SECRET = process.env.ARINOVA_CLIENT_SECRET ?? "";
 
 export function registerRoutes(app: FastifyInstance, engine: GameEngine) {
   // Health check
+  app.get("/", async () => ({ status: "ok" }));
   app.get("/api/health", async () => ({ status: "ok" }));
 
   // OAuth callback — exchange code for token via Arinova
