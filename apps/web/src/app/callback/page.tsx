@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArinovaAuth } from "@/lib/arinova";
 import { useGameStore } from "@/stores/game";
 
-export default function CallbackPage() {
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [error, setError] = useState("");
@@ -20,7 +20,6 @@ export default function CallbackPage() {
 
     ArinovaAuth.handleCallback(code)
       .then(async ({ user, accessToken }) => {
-        // Fetch user's agents
         const agents = await ArinovaAuth.getAgents(accessToken);
         setAuth(user, accessToken, agents);
         router.replace("/");
@@ -48,5 +47,13 @@ export default function CallbackPage() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function CallbackPage() {
+  return (
+    <Suspense fallback={<div className="flex min-h-screen items-center justify-center"><p className="text-[#999]">載入中...</p></div>}>
+      <CallbackContent />
+    </Suspense>
   );
 }
