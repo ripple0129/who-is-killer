@@ -19,8 +19,7 @@ function CallbackContent() {
     }
 
     ArinovaAuth.handleCallback(code)
-      .then(async ({ user, accessToken }) => {
-        const agents = await ArinovaAuth.getAgents(accessToken);
+      .then(({ user, accessToken, agents }) => {
         setAuth(user, accessToken, agents);
         router.replace("/");
       })

@@ -37,9 +37,25 @@ export function registerRoutes(app: FastifyInstance, engine: GameEngine) {
     }
 
     const data = await tokenRes.json();
+
+    // Fetch agents server-side to avoid CORS issues
+    let agents: unknown[] = [];
+    try {
+      const agentRes = await fetch(`${ARINOVA_URL}/api/v1/user/agents`, {
+        headers: { Authorization: `Bearer ${data.access_token}` },
+      });
+      if (agentRes.ok) {
+        const agentData = await agentRes.json();
+        agents = agentData.agents ?? [];
+      }
+    } catch {
+      // Non-critical — user can still log in without agents
+    }
+
     return {
       user: data.user,
       accessToken: data.access_token,
+      agents,
     };
   });
 

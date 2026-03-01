@@ -31,10 +31,10 @@ export const ArinovaAuth = {
     window.location.href = `${ARINOVA_BASE_URL}/oauth/authorize?${params}`;
   },
 
-  /** Exchange authorization code for access token (via our own server) */
+  /** Exchange authorization code for access token + agents (via our own server) */
   async handleCallback(
     code: string,
-  ): Promise<{ user: ArinovaUser; accessToken: string }> {
+  ): Promise<{ user: ArinovaUser; accessToken: string; agents: ArinovaAgent[] }> {
     const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3601";
     const res = await fetch(`${API_URL}/api/auth/callback`, {
       method: "POST",
@@ -43,15 +43,5 @@ export const ArinovaAuth = {
     });
     if (!res.ok) throw new Error("Auth failed");
     return res.json();
-  },
-
-  /** Fetch user's agents from Arinova API */
-  async getAgents(accessToken: string): Promise<ArinovaAgent[]> {
-    const res = await fetch(`${ARINOVA_BASE_URL}/api/v1/user/agents`, {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    if (!res.ok) throw new Error("Failed to get agents");
-    const data = await res.json();
-    return data.agents;
   },
 };
