@@ -11,9 +11,15 @@ import type {
 } from "@who-is-killer/shared/types";
 import { GAME_CONFIG } from "@who-is-killer/shared/types";
 import type { LLMProvider } from "../llm/index.js";
+import { ArinovaProvider } from "../llm/arinova.js";
 import { ScriptGenerator } from "./script-generator.js";
 
 type EventCallback = (roomId: string, event: unknown) => void;
+
+interface PlayerAgentInfo {
+  accessToken: string;
+  agentId: string;
+}
 
 export class GameEngine {
   private rooms = new Map<string, GameRoom>();
@@ -23,6 +29,8 @@ export class GameEngine {
   private llm: LLMProvider;
   private onEvent: EventCallback;
   private phaseTimers = new Map<string, ReturnType<typeof setTimeout>>();
+  private playerAgents = new Map<string, PlayerAgentInfo>(); // playerId -> agent info
+  private arinovaProviders = new Map<string, LLMProvider>(); // playerId -> cached provider
 
   constructor(llm: LLMProvider, onEvent: EventCallback) {
     this.llm = llm;
@@ -30,9 +38,22 @@ export class GameEngine {
     this.onEvent = onEvent;
   }
 
+  setPlayerAgent(playerId: string, accessToken: string, agentId: string): void {
+    this.playerAgents.set(playerId, { accessToken, agentId });
+    this.arinovaProviders.set(playerId, new ArinovaProvider(accessToken, agentId));
+  }
+
+  private getLLMForSuspect(roomId: string, suspectId: string): LLMProvider {
+    const room = this.rooms.get(roomId);
+    if (!room?.script) return this.llm;
+    const suspect = room.script.suspects.find((s) => s.id === suspectId);
+    if (!suspect?.assignedPlayerId) return this.llm;
+    return this.arinovaProviders.get(suspect.assignedPlayerId) ?? this.llm;
+  }
+
   // ===== Room Management =====
 
-  createRoom(hostName: string): { room: GameRoom; playerId: string } {
+  createRoom(hostName: string, agentId?: string, agentName?: string): { room: GameRoom; playerId: string } {
     const roomId = nanoid(8);
     const playerId = nanoid();
     const player: Player = {
@@ -41,6 +62,8 @@ export class GameEngine {
       suspectId: "",
       score: 0,
       connected: true,
+      agentId,
+      agentName,
     };
 
     const room: GameRoom = {
@@ -61,7 +84,7 @@ export class GameEngine {
     return { room, playerId };
   }
 
-  joinRoom(roomId: string, playerName: string): { room: GameRoom; playerId: string } | null {
+  joinRoom(roomId: string, playerName: string, agentId?: string, agentName?: string): { room: GameRoom; playerId: string } | null {
     const room = this.rooms.get(roomId);
     if (!room) return null;
     if (room.phase !== "lobby") return null;
@@ -74,6 +97,8 @@ export class GameEngine {
       suspectId: "",
       score: 0,
       connected: true,
+      agentId,
+      agentName,
     };
 
     room.players.push(player);
@@ -243,7 +268,8 @@ export class GameEngine {
 
       history.push({ role: "user", content: prompt });
 
-      const response = await this.llm.chat(history);
+      const llm = this.getLLMForSuspect(roomId, suspect.id);
+      const response = await llm.chat(history);
       history.push({ role: "assistant", content: response });
 
       this.suspectConversations.set(convKey, history);
@@ -267,7 +293,8 @@ export class GameEngine {
         content: "這是你的最後陳述機會。偵探們即將投票決定逮捕誰。請做出你最有說服力的最終辯護，2-4 句話。",
       });
 
-      const response = await this.llm.chat(history);
+      const llm = this.getLLMForSuspect(roomId, suspect.id);
+      const response = await llm.chat(history);
       history.push({ role: "assistant", content: response });
 
       this.suspectConversations.set(convKey, history);
@@ -325,7 +352,8 @@ export class GameEngine {
     const context = chatRoom === "private" ? "（偵探正在私下審問你）" : "（偵探在公開審訊室質問你）";
     history.push({ role: "user", content: `${context}\n偵探問：${question}\n\n請以角色身份回答，1-3 句話。` });
 
-    const response = await this.llm.chat(history);
+    const llm = this.getLLMForSuspect(roomId, suspectId);
+    const response = await llm.chat(history);
     history.push({ role: "assistant", content: response });
 
     this.suspectConversations.set(convKey, history);

@@ -45,11 +45,17 @@ export type ScriptInput = z.infer<typeof scriptSchema>;
 
 export const createRoomSchema = z.object({
   playerName: z.string().min(1).max(20),
+  accessToken: z.string().optional(),
+  agentId: z.string().optional(),
+  agentName: z.string().optional(),
 });
 
 export const joinRoomSchema = z.object({
   roomId: z.string().min(1),
   playerName: z.string().min(1).max(20),
+  accessToken: z.string().optional(),
+  agentId: z.string().optional(),
+  agentName: z.string().optional(),
 });
 
 // ===== Vote =====

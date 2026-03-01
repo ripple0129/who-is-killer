@@ -25,6 +25,8 @@ export interface Player {
   suspectId: string; // 負責的嫌疑犯 ID
   score: number;
   connected: boolean;
+  agentId?: string;
+  agentName?: string;
 }
 
 export interface Suspect {
@@ -95,7 +97,7 @@ export interface ChatMessage {
 // ===== WebSocket Event Types =====
 
 export type ClientEvent =
-  | { type: "join_room"; roomId: string; playerName: string }
+  | { type: "join_room"; roomId: string; playerName: string; accessToken?: string; agentId?: string }
   | { type: "start_game" }
   | { type: "send_message"; chatRoom: ChatRoom; content: string; targetSuspectId?: string }
   | { type: "vote"; suspectId: string }

@@ -31,9 +31,14 @@ export function Lobby() {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-red-600 text-sm font-bold">
                 {i + 1}
               </div>
-              <span className="font-medium">{player.name}</span>
+              <div className="min-w-0 flex-1">
+                <span className="font-medium">{player.name}</span>
+                {player.agentName && (
+                  <span className="ml-2 text-xs text-indigo-400">🤖 {player.agentName}</span>
+                )}
+              </div>
               {player.id === room.hostId && (
-                <span className="ml-auto text-xs text-amber-500">房主</span>
+                <span className="shrink-0 text-xs text-amber-500">房主</span>
               )}
             </div>
           ))}

@@ -13,19 +13,19 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  createRoom: (playerName: string) =>
+  createRoom: (playerName: string, accessToken?: string, agentId?: string, agentName?: string) =>
     request<{ roomId: string; playerId: string }>("/api/rooms", {
       method: "POST",
-      body: JSON.stringify({ playerName }),
+      body: JSON.stringify({ playerName, accessToken, agentId, agentName }),
     }),
 
   getRoom: (roomId: string) =>
     request<{ id: string; players: unknown[] }>(`/api/rooms/${roomId}`),
 
-  joinRoom: (roomId: string, playerName: string) =>
+  joinRoom: (roomId: string, playerName: string, accessToken?: string, agentId?: string, agentName?: string) =>
     request<{ playerId: string }>(`/api/rooms/${roomId}/join`, {
       method: "POST",
-      body: JSON.stringify({ roomId, playerName }),
+      body: JSON.stringify({ roomId, playerName, accessToken, agentId, agentName }),
     }),
 };
 

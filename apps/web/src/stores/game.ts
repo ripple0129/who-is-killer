@@ -1,7 +1,14 @@
 import { create } from "zustand";
 import type { GameRoom, ChatMessage, Clue, ScoreResult, GamePhase, RoundSubPhase } from "@who-is-killer/shared/types";
+import type { ArinovaUser, ArinovaAgent } from "@/lib/arinova";
 
 interface GameState {
+  // Auth (Arinova)
+  arinovaUser: ArinovaUser | null;
+  accessToken: string | null;
+  agents: ArinovaAgent[];
+  selectedAgent: ArinovaAgent | null;
+
   // Connection
   roomId: string | null;
   playerId: string | null;
@@ -20,6 +27,9 @@ interface GameState {
   isConnected: boolean;
 
   // Actions
+  setAuth: (user: ArinovaUser, accessToken: string, agents: ArinovaAgent[]) => void;
+  setSelectedAgent: (agent: ArinovaAgent) => void;
+  logout: () => void;
   setConnection: (roomId: string, playerId: string, playerName: string) => void;
   setWebSocket: (ws: WebSocket | null) => void;
   setRoom: (room: GameRoom) => void;
@@ -34,6 +44,10 @@ interface GameState {
 }
 
 const initialState = {
+  arinovaUser: null,
+  accessToken: null,
+  agents: [],
+  selectedAgent: null,
   roomId: null,
   playerId: null,
   playerName: null,
@@ -49,6 +63,14 @@ const initialState = {
 
 export const useGameStore = create<GameState>((set) => ({
   ...initialState,
+
+  setAuth: (user, accessToken, agents) =>
+    set({ arinovaUser: user, accessToken, agents }),
+
+  setSelectedAgent: (agent) => set({ selectedAgent: agent }),
+
+  logout: () =>
+    set({ arinovaUser: null, accessToken: null, agents: [], selectedAgent: null }),
 
   setConnection: (roomId, playerId, playerName) =>
     set({ roomId, playerId, playerName }),

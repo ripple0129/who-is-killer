@@ -13,14 +13,14 @@ import { Reveal } from "@/components/Reveal";
 export default function RoomPage() {
   const params = useParams();
   const roomId = params.roomId as string;
-  const { room, playerName, isConnected } = useGameStore();
+  const { room, playerName, isConnected, accessToken, selectedAgent } = useGameStore();
 
   useEffect(() => {
     if (playerName && roomId) {
-      connectWebSocket(roomId, playerName);
+      connectWebSocket(roomId, playerName, accessToken ?? undefined, selectedAgent?.id);
     }
     return () => disconnectWebSocket();
-  }, [roomId, playerName]);
+  }, [roomId, playerName, accessToken, selectedAgent]);
 
   if (!playerName) {
     return (

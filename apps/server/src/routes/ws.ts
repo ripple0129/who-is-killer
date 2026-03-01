@@ -35,6 +35,11 @@ export function registerWebSocket(
             playerId = player.id;
             player.connected = true;
 
+            // Store agent info if provided via WS
+            if (event.accessToken && event.agentId) {
+              engine.setPlayerAgent(playerId, event.accessToken, event.agentId);
+            }
+
             // Register connection
             if (!connections.has(roomId)) {
               connections.set(roomId, new Map());

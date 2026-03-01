@@ -4,7 +4,7 @@ import { WS_URL } from "./api";
 
 let socket: WebSocket | null = null;
 
-export function connectWebSocket(roomId: string, playerName: string) {
+export function connectWebSocket(roomId: string, playerName: string, accessToken?: string, agentId?: string) {
   if (socket?.readyState === WebSocket.OPEN) {
     socket.close();
   }
@@ -15,7 +15,7 @@ export function connectWebSocket(roomId: string, playerName: string) {
   socket.onopen = () => {
     store.setConnected(true);
     store.setWebSocket(socket);
-    sendEvent({ type: "join_room", roomId, playerName });
+    sendEvent({ type: "join_room", roomId, playerName, accessToken, agentId });
   };
 
   socket.onmessage = (evt) => {
