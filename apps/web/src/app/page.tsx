@@ -42,6 +42,22 @@ export default function HomePage() {
       });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Persistent listener: catch late auth messages even after connect() timeout
+  useEffect(() => {
+    if (arinovaUser) return;
+    const handler = (event: MessageEvent) => {
+      if (event.data?.type === "arinova:auth" && event.data.payload) {
+        const { user, accessToken, agents } = event.data.payload;
+        if (user) {
+          setAuth(user, accessToken, agents ?? []);
+          setConnecting(false);
+        }
+      }
+    };
+    window.addEventListener("message", handler);
+    return () => window.removeEventListener("message", handler);
+  }, [arinovaUser, setAuth]); // eslint-disable-line react-hooks/exhaustive-deps
+
   async function handleCreate() {
     if (!accessToken || !selectedAgent) return;
     setLoading(true);
