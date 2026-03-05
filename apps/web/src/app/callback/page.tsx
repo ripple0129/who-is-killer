@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ArinovaAuth } from "@/lib/arinova";
+import { Arinova } from "@/lib/arinova";
 import { useGameStore } from "@/stores/game";
 
 function CallbackContent() {
@@ -18,9 +18,14 @@ function CallbackContent() {
       return;
     }
 
-    ArinovaAuth.handleCallback(code)
-      .then(({ user, accessToken, agents }) => {
-        setAuth(user, accessToken, agents);
+    Arinova.handleCallback({
+      code,
+      clientId: process.env.NEXT_PUBLIC_ARINOVA_CLIENT_ID || "who-is-killer",
+      clientSecret: process.env.ARINOVA_CLIENT_SECRET || "",
+      redirectUri: window.location.origin + "/callback",
+    })
+      .then(({ user, accessToken }) => {
+        setAuth(user, accessToken, []);
         router.replace("/");
       })
       .catch((err) => {

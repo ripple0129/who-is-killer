@@ -57,6 +57,9 @@ importers:
 
   apps/web:
     dependencies:
+      '@arinova-ai/spaces-sdk':
+        specifier: 0.1.1
+        version: 0.1.1
       '@who-is-killer/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -119,6 +122,9 @@ packages:
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
     engines: {node: '>=10'}
+
+  '@arinova-ai/spaces-sdk@0.1.1':
+    resolution: {integrity: sha512-R79BxvvcNE3dSTBIQc0dve+Qar86YEsjQMx8On3qSv/SCq8NF2VrG/ENRQq6oyq1tmF3IaXuBHBM/uymPviy/Q==}
 
   '@emnapi/runtime@1.8.1':
     resolution: {integrity: sha512-mehfKSMWjjNol8659Z8KxEMrdSJDDot5SXMq00dM8BN4o+CLNXQ0xH2V7EchNHV4RmbZLmmPdEaXZc5H2FXmDg==}
@@ -1591,6 +1597,8 @@ packages:
 snapshots:
 
   '@alloc/quick-lru@5.2.0': {}
+
+  '@arinova-ai/spaces-sdk@0.1.1': {}
 
   '@emnapi/runtime@1.8.1':
     dependencies:

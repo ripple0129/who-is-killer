@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { api } from "@/lib/api";
 import { useGameStore } from "@/stores/game";
-import { ArinovaAuth } from "@/lib/arinova";
+import { Arinova } from "@/lib/arinova";
 
 export default function HomePage() {
   const [joinCode, setJoinCode] = useState("");
   const [mode, setMode] = useState<"menu" | "create" | "join">("menu");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [connecting, setConnecting] = useState(true);
   const router = useRouter();
   const setConnection = useGameStore((s) => s.setConnection);
+  const setAuth = useGameStore((s) => s.setAuth);
   const arinovaUser = useGameStore((s) => s.arinovaUser);
   const accessToken = useGameStore((s) => s.accessToken);
   const agents = useGameStore((s) => s.agents);
@@ -21,6 +23,24 @@ export default function HomePage() {
   const logout = useGameStore((s) => s.logout);
 
   const playerName = arinovaUser?.name ?? "";
+
+  // Auto-connect on mount (postMessage in iframe, OAuth redirect standalone)
+  useEffect(() => {
+    if (arinovaUser) {
+      setConnecting(false);
+      return;
+    }
+
+    Arinova.connect({ timeout: 5000 })
+      .then(({ user, accessToken, agents }) => {
+        setAuth(user, accessToken, agents);
+        setConnecting(false);
+      })
+      .catch(() => {
+        // Timeout or error — in standalone mode, login() already redirected
+        setConnecting(false);
+      });
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function handleCreate() {
     if (!accessToken || !selectedAgent) return;
@@ -64,6 +84,14 @@ export default function HomePage() {
     }
   }
 
+  if (connecting) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-[#999]">連線 Arinova 中...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-8 px-6">
@@ -78,7 +106,7 @@ export default function HomePage() {
         {/* Auth section */}
         {!arinovaUser ? (
           <button
-            onClick={() => ArinovaAuth.login()}
+            onClick={() => Arinova.login({ scope: ["profile", "agents"] })}
             className="w-full rounded-lg bg-indigo-600 px-6 py-4 text-lg font-semibold transition hover:bg-indigo-700"
           >
             使用 Arinova 登入
@@ -134,7 +162,7 @@ export default function HomePage() {
               )}
             </div>
 
-            {/* Menu / Create / Join — only show when agent is selected */}
+            {/* Menu / Create / Join */}
             {selectedAgent && (
               <>
                 {mode === "menu" && (
